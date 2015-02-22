@@ -3,6 +3,7 @@ title: "Weather events and their health and economic consequences"
 author: "Georges Bodiong"
 date: "Wednesday, February 18, 2015"
 output:
+  word_document: default
   html_document:
     highlight: pygments
 ---

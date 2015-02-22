@@ -5,6 +5,7 @@ date: "Wednesday, February 18, 2015"
 output:
   html_document:
     highlight: pygments
+  word_document: default
 ---
 
 There are various weather events that befall communities and municipalities in the United States every year. These include storms, rains, flooding, etc. Such events can result in fatalities, property damage and injuries. And preventing such outcomes is a real cause of concern for local policy makers. 
