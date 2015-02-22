@@ -1,0 +1,82 @@
+---
+title: "Weather events and their health and economic consequences"
+author: "Georges Bodiong"
+date: "Wednesday, February 18, 2015"
+output:
+  html_document:
+    highlight: pygments
+---
+
+There are various weather events that befall communities and municipalities in the United States every year. These include storms, rains, flooding, etc. Such events can result in fatalities, property damage and injuries. And preventing such outcomes is a real cause of concern for local policy makers. 
+
+The following report adresses two fundamental issues:
+
++ Which events are particularly harmful with regard to people's health?
+
++ Which events have the greatest economic consequences?
+
+The analysis is based on an in-depth exploration of the NOAA (the U.S. National Oceanic and Atmospheric Administration) Storm Database.
+
+##Data processing
+```{r data_processing}
+library(plyr)
+library(dplyr)
+```
+```{r}
+library(reshape2)
+library(ggplot2)
+library(R.utils)
+```
+
+
+##Downloading data
+```{r downloading_data}
+cache=TRUE
+if (!file.exists("StormData.csv.bz2")) 
+download.file("http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2", destfile="~/StormData")
+if(!file.exists("StormData.csv"))
+  bunzip2("StormData.csv.bz2", overwrite=FALSE, remove=FALSE)
+```
+##Reading the .csv file
+```{r reading_data}
+StormData <- read.csv("~/repdata_data_StormData.csv.bz2")
+dim(StormData)
+head(StormData, n=2)
+```
+The dataset contains 902297 observations and 37 variables. 
+
+##Events with the most health consequences
+```{r, echo=TRUE}
+events <-StormData[,"EVTYPE"]
+fatal <- StormData[,"FATALITIES"]
+injury <- StormData[,"INJURIES"]
+fat_injuries <- fatal + injury
+df <- data.frame("event"=events, total=fat_injuries)
+popdmg <- aggregate(fat_injuries ~ event, data = df, FUN=sum)
+order.popdmg <- order(popdmg$fat_injuries,decreasing=TRUE)
+main_fatal <- head(popdmg[order.popdmg, ],10)
+colnames(main_fatal) <- c("Event", "Total Number of Fatalities/Injuries")
+```
+
+##Weather events with the most economic consequences
+```{r}
+prop <- StormData[,"PROPDMG"]
+crop <- StormData[,"CROPDMG"]
+prop_crop <- prop + crop
+df2 <- data.frame("event"=events, "total"=prop_crop)
+econdmg <- aggregate(prop_crop ~ event, data = df2, FUN=sum)
+order.econdmg <- order(econdmg$prop_crop,decreasing=TRUE)
+econ_pbs <- head(econdmg[order.econdmg, ],10)
+```
+##Results
+```{r}
+print(main_fatal,row.names=FALSE)
+```
+
+This data frame shows the ten weather events with the most health consequences. 
+
+```{r}
+plot(econ_pbs[,2], xaxt="n", type="h", col="green",lwd=15, main="Events and their economic damages", xlab="", ylab="Economic Loss($)") 
+axis(1, at=1:10, labels=econ_pbs[,1], las=2,cex.axis=0.4, tick=FALSE)
+```
+
